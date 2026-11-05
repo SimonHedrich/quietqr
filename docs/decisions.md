@@ -122,7 +122,7 @@ multi-arch builds don't emulate Node), then `dist/` copied into
 `docker/sws.toml`: dynamic compression (brotli/gzip), no directory listing, `/health`.
 Multi-arch (amd64 + arm64), published to `ghcr.io/simonhedrich/quietqr`.
 
-Measured (v0.1.0, arm64): **app bundle 44.8 KB gzipped** (JS 41.2 KB + CSS 3.6 KB; target
+Measured (v0.1.0, arm64): **app bundle 45.0 KB gzipped** (JS 41.5 KB + CSS 3.6 KB; target
 was ≤ 60 KB), **image 3.6 MB** (server 3.5 MB + app 0.13 MB), **idle memory
 6.5 MiB** (`docker stats` after start; ~19 MiB right after serving a test run).
 

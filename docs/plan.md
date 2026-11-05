@@ -10,7 +10,7 @@ the Docker image, CI, the Pages deploy and the release workflow. Tests: unit tes
 decode-based scan tests over every option combination, and a Playwright smoke test that
 also runs against the Docker image in CI.
 
-Measured: JS + CSS 44.8 KB gzipped (target ≤ 60 KB), image 3.6 MB, idle memory 6.5 MiB
+Measured: JS + CSS 45.0 KB gzipped (target ≤ 60 KB), image 3.6 MB, idle memory 6.5 MiB
 (details in [decisions.md](decisions.md)).
 
 ## Next steps
