@@ -1,7 +1,8 @@
 # Decisions
 
-The tech decisions and why each option beat the alternatives. Planned in a session before the repo
-existed. The numbers are estimates from that session; check them when you implement.
+The tech decisions and why each option beat the alternatives. Numbers in the comparison
+tables are estimates made before implementation; measured values for quietqr itself are
+marked as measured.
 
 ## Build from scratch, don't fork mini-qr
 
@@ -121,7 +122,8 @@ multi-arch builds don't emulate Node), then `dist/` copied into
 `docker/sws.toml`: dynamic compression (brotli/gzip), no directory listing, `/health`.
 Multi-arch (amd64 + arm64), published to `ghcr.io/simonhedrich/quietqr`.
 
-Measured (v0.1.0, arm64): **image 3.6 MB** (server 3.5 MB + app 0.13 MB), **idle memory
+Measured (v0.1.0, arm64): **app bundle 44.8 KB gzipped** (JS 41.2 KB + CSS 3.6 KB; target
+was ≤ 60 KB), **image 3.6 MB** (server 3.5 MB + app 0.13 MB), **idle memory
 6.5 MiB** (`docker stats` after start; ~19 MiB right after serving a test run).
 
 **Headers** (`docker/sws.toml`):
@@ -184,6 +186,9 @@ writes a `config.json`. Add it only if a real need shows up (e.g. default colors
 - **Few dependencies:** smaller supply-chain surface, which fits the privacy promise.
   Dependabot or Renovate.
 - **CI (GitHub Actions):** lint + typecheck + test on PRs; deploy to GitHub Pages from
-  `main`; a version tag builds and pushes the multi-arch image to GHCR.
+  `main`; a version tag builds and pushes the multi-arch image to GHCR (the tag must match
+  `package.json`). The CI also builds the image, runs it read-only and runs the Playwright
+  smoke test against it. Actions are pinned to exact versions and updated by Dependabot
+  (npm, actions, Docker; grouped, weekly).
 - **Repo hygiene:** README with screenshot, demo link, `docker run` one-liner, compose
   snippet; CONTRIBUTING.md.
