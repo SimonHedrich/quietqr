@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import { LOGO_TYPES, logoToPng } from '../../lib/export/logo';
   import { icons } from '../../lib/icons';
   import { app } from '../../lib/state/app.svelte';
@@ -6,6 +7,13 @@
   import Icon from '../Icon.svelte';
 
   let input: HTMLInputElement | undefined = $state();
+  let root: HTMLDivElement | undefined = $state();
+
+  /** Keeps keyboard focus in the field when the button that had it is replaced. */
+  async function refocus() {
+    await tick();
+    root?.querySelector<HTMLButtonElement>('button')?.focus();
+  }
   let dragging = $state(false);
   let failed = $state(false);
 
@@ -14,6 +22,7 @@
     try {
       app.logo = await logoToPng(file);
       failed = false;
+      void refocus();
     } catch {
       failed = true;
     }
@@ -28,10 +37,11 @@
   function remove() {
     app.logo = null;
     if (input) input.value = '';
+    void refocus();
   }
 </script>
 
-<div class="logo">
+<div class="logo" bind:this={root}>
   <span class="label" id="logo-label">{t('style.logo')}</span>
   {#if app.logo}
     <div class="current">

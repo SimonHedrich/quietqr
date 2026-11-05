@@ -144,7 +144,11 @@ test('copy image puts a PNG on the clipboard', async ({ page, context }) => {
   expect(types).toContain('image/png');
 });
 
-test('copy link round trip, then the hash is cleared on edit', async ({ page, context }) => {
+test('copy link round trip, then the hash is cleared on edit', async ({
+  page,
+  context,
+  browser,
+}) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/');
   await page.getByRole('button', { name: 'WiFi', exact: true }).click();
@@ -165,6 +169,20 @@ test('copy link round trip, then the hash is cleared on edit', async ({ page, co
   expect(other.url()).toBe(link);
   await other.getByLabel('Network name (SSID)').fill('Changed');
   await expect.poll(() => other.url()).not.toContain('#');
+
+  // In another browser: a link pasted into an open tab (hash change only) is loaded, and
+  // its style is shown but doesn't replace the receiver's saved style.
+  const receiver = await browser.newContext({ baseURL: new URL(link).origin });
+  const fresh = await receiver.newPage();
+  await fresh.goto('/');
+  await fresh.getByLabel('Web address').fill('typed');
+  await fresh.goto('/' + link.slice(link.indexOf('#')));
+  await expect(fresh.getByLabel('Network name (SSID)')).toHaveValue('Café;Net');
+  await expect(fresh.getByRole('radio', { name: 'Dots' })).toBeChecked();
+  await fresh.goto('/');
+  await fresh.reload();
+  await expect(fresh.getByRole('radio', { name: 'Square' })).toBeChecked();
+  await receiver.close();
 
   // A broken hash is ignored.
   const broken = await context.newPage();

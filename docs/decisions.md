@@ -188,7 +188,8 @@ writes a `config.json`. Add it only if a real need shows up (e.g. default colors
 - **CI (GitHub Actions):** lint + typecheck + test on PRs; deploy to GitHub Pages from
   `main`; a version tag builds and pushes the multi-arch image to GHCR (the tag must match
   `package.json`). The CI also builds the image, runs it read-only and runs the Playwright
-  smoke test against it. Actions are pinned to exact versions and updated by Dependabot
+  smoke test against it. The Pages and Release workflows call CI first, so nothing is deployed
+  or published untested. Actions are pinned to exact versions and updated by Dependabot
   (npm, actions, Docker; grouped, weekly).
 - **Repo hygiene:** README with screenshot, demo link, `docker run` one-liner, compose
   snippet; CONTRIBUTING.md.

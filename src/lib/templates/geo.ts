@@ -59,6 +59,8 @@ const PATTERNS: readonly RegExp[] = [
 export function parseLocation(text: string): { lat: number; lng: number } | 'shortLink' | null {
   const s = text.trim().replace(/%2C/gi, ',').replace(/%20/g, ' ');
   if (/\b(?:maps\.app\.goo\.gl|goo\.gl\/maps)\//i.test(s)) return 'shortLink';
+  // `48,137` is one number with a decimal comma, not a pair.
+  if (/^-?\d+,\d+$/.test(s)) return null;
   for (const pattern of PATTERNS) {
     const m = pattern.exec(s);
     if (!m) continue;

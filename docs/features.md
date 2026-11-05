@@ -78,7 +78,9 @@ No PDF and no print button.
 - The URL hash is not synced automatically; only "Copy link" writes it
   (`#v1=<base64url(JSON)>` with the template, its non-empty values and the non-default style
   fields). Opening such a link restores content and style; an invalid or unknown-version
-  hash is ignored silently. The hash stays in the address bar until the first edit, then
+  hash is ignored silently. A link pasted into a tab where quietqr is already open is loaded
+  too. The style from a link is shown but not saved, so it doesn't replace the receiver's own
+  style unless they change it. The hash stays in the address bar until the first edit, then
   it is removed, so stale content isn't shared again by accident.
 - The logo is never stored, neither in localStorage nor in the hash.
 

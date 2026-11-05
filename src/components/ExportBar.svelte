@@ -23,8 +23,16 @@
     if (app.svg) downloadBlob(svgBlob(app.svg), exportFilename(app.template, 'svg'));
   }
 
+  let pngFailed = $state(false);
+
   async function downloadPng() {
-    if (app.svg) downloadBlob(await svgToPng(app.svg, size), exportFilename(app.template, 'png'));
+    if (!app.svg) return;
+    try {
+      downloadBlob(await svgToPng(app.svg, size), exportFilename(app.template, 'png'));
+      pngFailed = false;
+    } catch {
+      pngFailed = true;
+    }
   }
 
   async function copyImage() {
@@ -99,6 +107,7 @@
       >
     </button>
   </div>
+  {#if pngFailed}<p class="field-error note" role="alert">{t('export.pngFailed')}</p>{/if}
   <p class="hint note">{t('export.linkNote')}</p>
 </section>
 

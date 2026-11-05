@@ -119,9 +119,11 @@ describe('email template', () => {
 
 describe('phone template', () => {
   test('normalizes the number', () => {
-    expect(phone.encode({ number: '+49 (0) 721 123-45.67' })).toBe('tel:+4907211234567');
+    expect(phone.encode({ number: '+49 (0) 721 123-45.67' })).toBe('tel:+497211234567');
     expect(phone.encode({ number: ' 0721/12345 ' })).toBe('tel:072112345');
     expect(phone.encode({ number: '*100#' })).toBe('tel:*100#');
+    expect(phone.encode({ number: '+49 (0)89 1234' })).toBe('tel:+49891234');
+    expect(phone.encode({ number: '+49(0) 721 1234' })).toBe('tel:+497211234');
   });
 
   test('empty and validation', () => {

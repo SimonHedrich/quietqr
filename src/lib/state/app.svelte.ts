@@ -34,6 +34,11 @@ export class AppState {
    * Cleared, together with the address bar's hash, as soon as the user edits.
    */
   linkHash = $state<string | null>(null);
+  /**
+   * The style that came with an opened link. It is shown but not saved, so a shared link
+   * doesn't replace the user's own style; it is saved once the user changes it.
+   */
+  linkStyle: string | null = null;
 
   /** The active template's values, typed loosely for generic code. */
   readonly current: FieldValues = $derived(this.values[this.template]);
@@ -77,7 +82,10 @@ export class AppState {
 
   /** Saves the style to localStorage. Content and logo are never stored. */
   saveStyle(): void {
-    storage.set(STYLE_KEY, serializeStyle(this.style));
+    const style = serializeStyle(this.style);
+    if (style === this.linkStyle) return;
+    this.linkStyle = null;
+    storage.set(STYLE_KEY, style);
   }
 
   /** The current template, values and style as a `#v1=…` hash. Never includes the logo. */
@@ -93,6 +101,7 @@ export class AppState {
     this.values[shared.template] = shared.values as never;
     this.style = shared.style;
     this.linkHash = hash;
+    this.linkStyle = serializeStyle(shared.style);
     return true;
   }
 }

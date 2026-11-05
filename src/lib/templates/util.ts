@@ -10,10 +10,11 @@ export function crlf(text: string): string {
 
 /**
  * Normalizes a phone number for `tel:` and `SMSTO:`: keeps a leading `+`, digits, `*` and
- * `#`; drops spaces, dashes, dots, slashes and parentheses.
+ * `#`; drops a `(0)` after the country code, spaces, dashes, dots, slashes and parentheses.
  */
 export function normalizePhone(input: string): string {
-  const s = input.trim();
+  // `+49 (0)89 …`: the (0) is only dialled without the country code.
+  const s = input.trim().replace(/^(\+\d+)\s*\(0\)/, '$1');
   const plus = s.startsWith('+') ? '+' : '';
   return plus + s.replace(/[^0-9*#]/g, '');
 }

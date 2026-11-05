@@ -102,6 +102,7 @@ export const en = {
   'export.copyImage': 'Copy image',
   'export.copied': 'Copied',
   'export.copyFailed': 'Copying failed',
+  'export.pngFailed': 'The PNG couldn’t be created.',
   'export.copyLink': 'Copy link',
   'export.linkCopied': 'Link copied',
   'export.linkNote': 'The link contains your content.',

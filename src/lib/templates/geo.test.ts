@@ -132,4 +132,10 @@ describe('parseLocation', () => {
     expect(parseLocation('91, 11')).toBeNull();
     expect(parseLocation('48, 181')).toBeNull();
   });
+
+  test('a single decimal comma is not a coordinate pair', () => {
+    expect(parseLocation('48,137')).toBeNull();
+    expect(parseLocation('48,137, 11,575')).toBeNull();
+    expect(parseLocation('48.137,11.575')).toEqual({ lat: 48.137, lng: 11.575 });
+  });
 });

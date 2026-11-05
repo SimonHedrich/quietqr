@@ -18,6 +18,15 @@
     else delete document.documentElement.dataset.theme;
   });
 
+  // A link pasted into a tab where the app is already open only changes the hash.
+  $effect(() => {
+    const onHashChange = () => {
+      if (location.hash !== app.linkHash) app.loadHash(location.hash);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  });
+
   // Persist the style (and only the style) whenever it changes.
   $effect(() => {
     app.saveStyle();

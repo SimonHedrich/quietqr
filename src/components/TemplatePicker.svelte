@@ -52,18 +52,25 @@
   /** Focusable chips in the row: the visible ones plus "…" if there is an overflow. */
   const stops = $derived(visible.length + (overflow.length ? 1 : 0));
 
-  // Re-measure chip widths when labels change (language switch).
-  $effect(() => {
-    void prefs.locale;
+  /** Measures the chip widths from the invisible copy (they depend on language and CSS). */
+  function measureChips() {
     if (!measure) return;
     const chips = [...measure.querySelectorAll<HTMLElement>('[data-chip]')];
     chipWidths = chips.map((c) => c.getBoundingClientRect().width);
+  }
+
+  // Re-measure when labels change (language switch).
+  $effect(() => {
+    void prefs.locale;
+    measureChips();
   });
 
   $effect(() => {
     if (!row) return;
     const ro = new ResizeObserver(([entry]) => {
       if (entry) width = entry.contentRect.width;
+      // Media queries can change chip padding and font size.
+      measureChips();
     });
     ro.observe(row);
     return () => ro.disconnect();
@@ -333,6 +340,8 @@
 
   .measure {
     position: absolute;
+    width: 0;
+    overflow: hidden;
     visibility: hidden;
     pointer-events: none;
     display: flex;
