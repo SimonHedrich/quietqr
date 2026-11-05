@@ -39,6 +39,10 @@ QR encoding runs fully client-side, so the app is a static bundle:
 
 Plain Vite + Svelte, **not SvelteKit**: it's a single page with no routing.
 
+Toolchain: Node 26 (current LTS, pinned in `.nvmrc` and `engines`), Vite 8, Svelte 5,
+TypeScript 6 (TypeScript 7 is out, but `svelte-check` doesn't support it yet), ESLint 10 flat
+config with typescript-eslint and eslint-plugin-svelte, Prettier, Vitest.
+
 ## QR: small encoder + own SVG renderer
 
 - Encode with a library that returns the module matrix and lets you control the error-correction
