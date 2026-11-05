@@ -5,7 +5,8 @@ Where the work stands and what comes next. Delete finished steps; fold their res
 ## Status
 
 The project is scaffolded (Vite + Svelte 5 + TS strict, ESLint + Prettier, Vitest; Node 26
-LTS). The
+LTS). The QR core (encoder, SVG renderer with three shapes, logo excavation, capacity)
+is done and covered by decode-based scan tests. The
 motivation and goals ([brief.md](brief.md)), the tech stack ([decisions.md](decisions.md))
 and the feature set ([features.md](features.md)) are decided.
 
@@ -14,9 +15,7 @@ and the feature set ([features.md](features.md)) are decided.
 How to carry these out (order, architecture, quality gates, milestones):
 [implementation-guide.md](implementation-guide.md).
 
-1. **Core:** matrix encoder choice (`uqr` vs Nayuki), SVG renderer (3 shapes, logo
-   excavation, fixed quiet zone), the 9 data templates with unit tests (check `SMSTO:` vs
-   `sms:` on iOS and Android first), decode-based scan tests.
+1. **Templates:** the 9 data templates with unit tests and scan round trips.
 2. **UI** following `docs/features.md`, i18n (EN + DE), accessibility.
 3. **Export** (SVG/PNG/clipboard), "Copy link" hash state, style in localStorage.
 4. **Docker:** multi-stage build → static-web-server, non-root, CSP and other security

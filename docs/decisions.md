@@ -45,14 +45,41 @@ config with typescript-eslint and eslint-plugin-svelte, Prettier, Vitest.
 
 ## QR: small encoder + own SVG renderer
 
-- Encode with a library that returns the module matrix and lets you control the error-correction
-  level, version and mask: **`uqr`** (unjs; ESM, TS, tiny) or **Nayuki's QR Code generator**
-  (reference quality, MIT). Pick one when you implement; check that it is maintained and
-  how big it is.
-- **Write our own SVG renderer** (~100–200 lines). We decide exactly which few styles exist
-  (e.g. square vs rounded modules, one foreground/background color, an optional logo with an
-  excavated area) instead of inheriting `qr-code-styling`'s option sprawl.
-- Export: SVG directly; PNG by drawing the SVG to a canvas at the chosen size; copy to the clipboard.
+- **Encoder: [`uqr`](https://github.com/unjs/uqr)** (unjs, MIT, ~4 KB gz). It is a typed ESM
+  port of Nayuki's reference encoder and produced identical matrices in a comparison. It
+  never raises the error-correction level unless asked (`boostEcc: false`), and it reports
+  the type of each module (finder, timing, alignment, format), which the renderer and the
+  logo excavation need. Nayuki's own code has no official npm package (we would vendor a
+  file), raises the level by default in `encodeText`, and hides the function-pattern map.
+- Text with lone UTF-16 surrogates is repaired to U+FFFD before encoding (the encoder would
+  throw).
+- **Own SVG renderer** (`src/lib/qr/render.ts`), one SVG string for preview, SVG and PNG:
+  - Square: horizontal runs merged into one `<path>`, so there are no hairline seams.
+  - Rounded: a module's corner is rounded (radius 0.5) when both neighbours on that side
+    are light, so connected shapes get rounded outer corners and a lone module is a circle.
+    Inner corners stay sharp.
+  - Dots: circles with radius 0.4 modules.
+  - Finder patterns are drawn separately and follow the shape: sharp, rounded squares,
+    or concentric circles.
+  - Fixed 4-module quiet zone; colors must be validated `#rrggbb`, the logo a PNG data URL,
+    or the renderer throws.
+- **Logo excavation** (`src/lib/qr/logo.ts`): a centered square of the nearest odd module
+  count to 20 % of the symbol width + 1 module padding per side. With a logo the code is
+  at least version 2, because in version 1 the area would reach the format information.
+  From version 7 on the central alignment pattern sits in the middle and is covered; the
+  scan tests show decoders cope. Finder, timing and format modules are never touched
+  (unit-tested for every version).
+- **Capacity indicator:** UTF-8 bytes of the payload against the byte-mode capacity of a
+  version-40 code at the current level (L 2953, M 2331, Q 1663, H 1273). Shown with "~"
+  because digits and upper-case text pack denser; the hard error comes from the encoder
+  itself, so it is exact.
+- **Scan tests** (`tests/scan/`) render every shape × level × logo (none / solid / noisy)
+  × color pair × short/long payload, plus every preset color combination and a sweep of
+  versions with a logo at H. They rasterize with `@resvg/resvg-js` (~8 px per module) and
+  decode with `zxing-wasm` (ZXing-C++). With a logo, L and M failed for the long payload in
+  every shape, Q and H always passed; those combinations get a warning instead.
+- Export: SVG directly; PNG by drawing the SVG to a canvas at the chosen size; copy to the
+  clipboard.
 
 ## Styling: scoped CSS + custom properties
 
