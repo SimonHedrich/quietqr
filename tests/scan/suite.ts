@@ -1,0 +1,93 @@
+import { describe, expect, test } from 'vitest';
+import type { Hex } from '../../src/lib/color';
+import { analyze } from '../../src/lib/qr/analyze';
+import { encodeQr, encodeRaised, type Ecl } from '../../src/lib/qr/encode';
+import { renderSvg } from '../../src/lib/qr/render';
+import { BG_PRESETS, FG_PRESETS, type Shape } from '../../src/lib/style';
+import { decodeSvg, roundTrip, testLogo } from './helpers';
+
+const ECLS: Ecl[] = ['L', 'M', 'Q', 'H'];
+const SHORT = 'https://example.com/';
+const LONG =
+  'BEGIN:VCARD\r\nVERSION:3.0\r\nN:Müller;Jürgen;;;\r\nFN:Jürgen Müller\r\nORG:Beispiel GmbH\r\n' +
+  'TITLE:Leiter Einkauf\r\nTEL;TYPE=CELL:+49 170 1234567\r\nEMAIL:juergen.mueller@example.de\r\n' +
+  'URL:https://example.de\r\nADR;TYPE=WORK:;;Hauptstraße 1;Karlsruhe;;76131;Deutschland\r\n' +
+  'NOTE:Bitte nur werktags anrufen\\, danke! 👋\r\nEND:VCARD';
+
+const COLOR_PAIRS: [Hex, Hex][] = [
+  ['#1f2328', '#ffffff'],
+  ['#1e3a8a', '#eff6ff'],
+  ['#7f1d1d', '#fdf6e3'],
+  ['#713f12', '#fdf2f8'],
+];
+
+const logos = { solid: testLogo('solid'), noisy: testLogo('noisy') };
+
+/**
+ * Renders codes across the offered option range for one shape and decodes them with ZXing.
+ * One test file per shape (square/rounded/dots.test.ts), so Vitest runs them in parallel.
+ */
+export function scanSuite(shape: Shape): void {
+  describe('every level × logo × colors × payload scans', () => {
+    for (const ecl of ECLS)
+      for (const logo of [undefined, 'solid', 'noisy'] as const)
+        for (const [fg, bg] of COLOR_PAIRS)
+          for (const [name, payload] of [
+            ['short', SHORT],
+            ['long', LONG],
+          ] as const) {
+            const label = `${shape} ${ecl} logo=${logo ?? 'none'} ${fg}/${bg} ${name}`;
+            test(label, async () => {
+              const { warnings } = analyze({
+                fg,
+                bg,
+                transparent: false,
+                hasLogo: logo !== undefined,
+                version: encodeQr(payload, ecl).version,
+                ecl,
+              });
+              const text = await roundTrip(payload, ecl, {
+                shape,
+                fg,
+                bg,
+                logo: logo && logos[logo],
+              });
+              // Either it scans, or the app warns about it (e.g. a logo at L or M).
+              if (text !== payload) expect(warnings).not.toEqual([]);
+              else if (logo === undefined || ecl === 'Q' || ecl === 'H')
+                expect(warnings).toEqual([]);
+            });
+          }
+  });
+
+  describe('every preset combination scans', () => {
+    for (const fg of FG_PRESETS)
+      for (const bg of BG_PRESETS)
+        test(`${shape} ${fg}/${bg}`, async () => {
+          expect(await roundTrip(SHORT, 'M', { shape, fg, bg })).toBe(SHORT);
+        });
+  });
+
+  test('transparent background scans on white', async () => {
+    expect(await roundTrip(LONG, 'M', { shape, transparent: true })).toBe(LONG);
+  });
+
+  describe('logo works across many versions at H', () => {
+    const lengths: number[] = [];
+    for (let len = 5; len <= 1200; len = Math.ceil(len * 1.35)) lengths.push(len);
+    for (const len of lengths)
+      test(`${shape} ${len} bytes`, async () => {
+        const payload = 'x'.repeat(len);
+        expect(await roundTrip(payload, 'H', { shape, logo: logos.noisy })).toBe(payload);
+      });
+  });
+
+  test('Auto-raised codes scan', async () => {
+    for (let len = 5; len <= 600; len = Math.ceil(len * 1.6)) {
+      const payload = 'https://example.com/' + 'a'.repeat(len);
+      const qr = encodeRaised(payload, 'M');
+      const svg = renderSvg(qr, { shape, fg: '#1f2328', bg: '#ffffff', transparent: false });
+      expect(await decodeSvg(svg, (qr.size + 8) * 8), `${len} ${qr.ecl}`).toBe(payload);
+    }
+  });
+}
