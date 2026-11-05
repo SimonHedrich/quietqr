@@ -76,15 +76,22 @@ writes a `config.json`. Add it only if a real need shows up (e.g. default colors
 
 - **License: MIT** (already in the repo) for the widest use.
 - **Scannability is a feature:** warn about low contrast, inverted colors, a logo too large for
-  the error-correction level, or a missing quiet zone.
+  the error-correction level, or a very dense code.
 - **Automated scan tests:** Vitest unit tests for the data encoders (WiFi escaping, vCard,
   …), plus tests that render codes across the offered option range and decode them
   (`zxing-wasm` or `jsQR`), so every option combination is guaranteed to scan.
-- **State in the URL hash** instead of save/load buttons: a configuration is a shareable,
-  bookmarkable link that never touches a server. The last state is kept in localStorage.
-- **Data templates first-class** (candidates: URL, text, WiFi, vCard, email, SMS, geo, calendar
-  event). The final list is part of the functionality interview.
-- **i18n from day one** (at least English + German). Translations are the easiest way for
+- **No save/load buttons; content is never persisted.** WiFi passwords and contact data must
+  not end up in browser history or localStorage by accident. localStorage keeps only the
+  style. The URL hash is written only on an explicit "Copy link", which makes a configuration
+  a shareable link that never touches a server. The logo is never stored.
+- **Data templates first-class:** URL, WiFi, Text, Contact, Email, Phone, SMS, Geo, Calendar
+  (details in [features.md](features.md)). One module per template in `src/lib/templates/`.
+- **Error correction:** automatic by default (M without a logo, H with one), with a manual
+  override shown directly as a 5-button segmented control (Auto + the four levels). Only four
+  levels exist, so a slider would add nothing.
+- **Fixed quiet zone** of 4 modules, not configurable: it removes a common reason codes fail
+  to scan.
+- **i18n from day one** (English + German for the first release). Translations are the easiest way for
   outsiders to contribute, and retrofitting i18n is painful.
 - **Accessibility:** keyboard navigation, labels, good contrast in the UI itself.
 - **Few dependencies:** smaller supply-chain surface, which fits the privacy promise.

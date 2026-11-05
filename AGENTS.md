@@ -9,8 +9,9 @@ generator that runs entirely in the browser.
    it explains what to leave out and why.
 2. [docs/decisions.md](docs/decisions.md) – tech stack and the reasoning behind it. Don't
    reopen a decision without a concrete new reason; if one changes, update that file.
-3. [docs/plan.md](docs/plan.md) – current status and next steps. **The next step is a
-   functionality interview with Simon before any code is written.**
+3. [docs/features.md](docs/features.md) – what the app does: templates, styling, export,
+   state, warnings, layout. Build to this; don't add features it doesn't list.
+4. [docs/plan.md](docs/plan.md) – current status and next steps.
 
 ## Rules
 
