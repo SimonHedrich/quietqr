@@ -173,7 +173,10 @@ writes a `config.json`. Add it only if a real need shows up (e.g. default colors
   a shareable link that never touches a server. The logo is never stored.
 - **Data templates first-class:** URL, WiFi, Text, Contact, Email, Phone, SMS, Geo, Calendar
   (details in [features.md](features.md)). One module per template in `src/lib/templates/`.
-- **Error correction:** automatic by default (M without a logo, H with one), with a manual
+- **Error correction:** automatic by default (at least M without a logo, H with one, then
+  raised to the highest level that fits into the same version; `encodeRaised` in
+  `src/lib/qr/encode.ts`, done ourselves rather than with uqr's `boostEcc` because that
+  doesn't report the final level), with a manual
   override shown directly as a 5-button segmented control (Auto + the four levels). Only four
   levels exist, so a slider would add nothing.
 - **Fixed quiet zone** of 4 modules, not configurable: it removes a common reason codes fail

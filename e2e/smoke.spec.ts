@@ -207,7 +207,10 @@ test('logo upload switches Auto to 30 % and can be removed', async ({ page }) =>
   const check = guard(page);
   await page.goto('/');
   await page.getByLabel('Web address').fill('example.com');
-  await expect(page.getByText('Auto: 15 %')).toBeVisible();
+  // A short URL leaves room, so Auto raises the level at no extra size.
+  await expect(
+    page.getByText(/^Auto: (25|30) % \(raised from 15 % at no extra size\)$/),
+  ).toBeVisible();
   // A 1×1 red PNG.
   const png = Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==',

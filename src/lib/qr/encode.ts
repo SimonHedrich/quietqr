@@ -52,10 +52,16 @@ export function toWellFormed(text: string): string {
  * choosing the smallest version from `minVersion` on that fits. Throws {@link CapacityError}
  * if it doesn't fit.
  */
-export function encodeQr(text: string, ecl: Ecl, minVersion = 1): QrMatrix {
+export function encodeQr(text: string, ecl: Ecl, minVersion = 1, maxVersion = 40): QrMatrix {
   let qr;
   try {
-    qr = encode(toWellFormed(text), { ecc: ecl, border: 0, boostEcc: false, minVersion });
+    qr = encode(toWellFormed(text), {
+      ecc: ecl,
+      border: 0,
+      boostEcc: false,
+      minVersion,
+      maxVersion,
+    });
   } catch (e) {
     if (e instanceof Error && /too long/i.test(e.message)) throw new CapacityError();
     throw e;
@@ -67,4 +73,25 @@ export function encodeQr(text: string, ecl: Ecl, minVersion = 1): QrMatrix {
     modules: qr.data,
     kind: qr.types.map((row) => row.map((t) => KIND[t] ?? 'data')),
   };
+}
+
+const LEVELS: readonly Ecl[] = ['L', 'M', 'Q', 'H'];
+
+/**
+ * Encodes at `minEcl` or higher: first the smallest version that fits at `minEcl`, then the
+ * highest level that still fits into that same version. A higher level costs nothing here,
+ * because the space would otherwise be filled with padding. Throws {@link CapacityError} if
+ * the text doesn't fit at `minEcl`.
+ */
+export function encodeRaised(text: string, minEcl: Ecl, minVersion = 1): QrMatrix {
+  const base = encodeQr(text, minEcl, minVersion);
+  const higher = LEVELS.slice(LEVELS.indexOf(minEcl) + 1).reverse();
+  for (const ecl of higher) {
+    try {
+      return encodeQr(text, ecl, base.version, base.version);
+    } catch (e) {
+      if (!(e instanceof CapacityError)) throw e;
+    }
+  }
+  return base;
 }

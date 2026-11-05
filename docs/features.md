@@ -52,8 +52,12 @@ One style section, no "Advanced" section:
   behind it are cleared with a small padding in the background color. The only control is
   "Remove".
 - **Error correction:** a segmented control **Auto · 7 % · 15 % · 25 % · 30 %** (L/M/Q/H as
-  small text). Auto is the default and picks 15 % without a logo, 30 % with one. A caption
-  shows the choice ("Auto: 30 % (logo)"). A fixed level stays until Auto is clicked again.
+  small text). Auto is the default and starts from 15 % without a logo, 30 % with one. It then
+  raises the level as far as possible without making the code bigger (a code has fixed
+  sizes, so short content often leaves room). A caption shows the result: "Auto: 15 %",
+  "Auto: 25 % (raised from 15 % at no extra size)" or "Auto: 30 % (logo)". The capacity
+  indicator is measured against the starting level. A fixed level stays exactly as chosen
+  until Auto is clicked again.
 - **Quiet zone:** fixed at 4 modules, not configurable.
 
 ## Export and sharing

@@ -1,6 +1,6 @@
 import { analyze, type Analysis } from '../qr/analyze';
 import { capacity, type Capacity } from '../qr/capacity';
-import { CapacityError, encodeQr, type Ecl, type QrMatrix } from '../qr/encode';
+import { CapacityError, encodeQr, encodeRaised, type Ecl, type QrMatrix } from '../qr/encode';
 import { LOGO_MIN_VERSION } from '../qr/logo';
 import { renderSvg } from '../qr/render';
 import { resolveEcl, type Style } from '../style';
@@ -49,15 +49,25 @@ export class AppState {
   readonly payload: string = $derived(
     this.isEmpty ? PLACEHOLDER_PAYLOAD : getTemplate(this.template).encode(this.current),
   );
-  readonly ecl: Ecl = $derived(resolveEcl(this.style.ecl, this.logo !== null));
+  /**
+   * The minimum level: the fixed choice, or for Auto 15 % (M) without a logo and 30 % (H)
+   * with one. Capacity is measured against it, since raising never takes space away.
+   */
+  readonly baseEcl: Ecl = $derived(resolveEcl(this.style.ecl, this.logo !== null));
   readonly qr: QrMatrix | null = $derived.by(() => {
+    const minVersion = this.logo ? LOGO_MIN_VERSION : 1;
     try {
-      return encodeQr(this.payload, this.ecl, this.logo ? LOGO_MIN_VERSION : 1);
+      // Auto raises the level as far as the code's size allows; a fixed level stays fixed.
+      return this.style.ecl === 'auto'
+        ? encodeRaised(this.payload, this.baseEcl, minVersion)
+        : encodeQr(this.payload, this.baseEcl, minVersion);
     } catch (e) {
       if (e instanceof CapacityError) return null;
       throw e;
     }
   });
+  /** The level the code actually uses (may be above {@link baseEcl} with Auto). */
+  readonly ecl: Ecl = $derived(this.qr?.ecl ?? this.baseEcl);
   readonly svg: string | null = $derived(
     this.qr &&
       renderSvg(this.qr, {
@@ -73,7 +83,7 @@ export class AppState {
       ecl: this.ecl,
     }),
   );
-  readonly capacity: Capacity = $derived(capacity(this.isEmpty ? '' : this.payload, this.ecl));
+  readonly capacity: Capacity = $derived(capacity(this.isEmpty ? '' : this.payload, this.baseEcl));
 
   /** Resets the active template's fields. */
   clear(): void {

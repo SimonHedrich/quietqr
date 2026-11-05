@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { CapacityError, encodeQr, toWellFormed } from './encode';
+import { CapacityError, encodeQr, encodeRaised, toWellFormed } from './encode';
 import { capacity, MAX_BYTES } from './capacity';
 import { LOGO_MIN_VERSION, logoArea, protectedModulesIn } from './logo';
 import { renderSvg } from './render';
@@ -26,6 +26,42 @@ describe('encodeQr', () => {
     expect(toWellFormed('a\uD83Db')).toBe('a�b');
     expect(toWellFormed('👋')).toBe('👋');
     expect(() => encodeQr('broken \uD83D', 'M')).not.toThrow();
+  });
+});
+
+describe('encodeRaised', () => {
+  test('raises a short payload as far as the same size allows', () => {
+    const qr = encodeRaised('https://example.com', 'M');
+    expect(qr.version).toBe(encodeQr('https://example.com', 'M').version);
+    expect(qr.ecl).not.toBe('M');
+  });
+
+  test('never makes the code bigger, never goes below the minimum', () => {
+    const order = ['L', 'M', 'Q', 'H'];
+    for (let len = 1; len < 2300; len = Math.ceil(len * 1.2)) {
+      const text = 'x'.repeat(len);
+      for (const min of ['M', 'H'] as const) {
+        let base;
+        try {
+          base = encodeQr(text, min);
+        } catch {
+          continue;
+        }
+        const raised = encodeRaised(text, min);
+        expect(raised.version, `${len} ${min}`).toBe(base.version);
+        expect(order.indexOf(raised.ecl)).toBeGreaterThanOrEqual(order.indexOf(min));
+      }
+    }
+  });
+
+  test('stays at the minimum when a higher level needs a bigger code', () => {
+    // 2331 bytes is the maximum at M: nothing higher fits into version 40.
+    expect(encodeRaised('x'.repeat(2331), 'M').ecl).toBe('M');
+  });
+
+  test('respects minVersion and throws when the minimum level does not fit', () => {
+    expect(encodeRaised('hi', 'H', 2).version).toBe(2);
+    expect(() => encodeRaised('x'.repeat(2332), 'M')).toThrow(CapacityError);
   });
 });
 

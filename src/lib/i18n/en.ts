@@ -127,6 +127,7 @@ export const en = {
   'style.ecl': 'Error correction',
   'style.ecl.auto': 'Auto',
   'style.eclCaptionAuto': 'Auto: {percent} %',
+  'style.eclCaptionAutoRaised': 'Auto: {percent} % (raised from {base} % at no extra size)',
   'style.eclCaptionAutoLogo': 'Auto: {percent} % (logo)',
   'style.eclCaptionFixed': '{percent} % of the code can be damaged and it still scans.',
 };

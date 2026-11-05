@@ -20,13 +20,18 @@
     ),
   );
 
-  const caption = $derived(
-    app.style.ecl === 'auto'
-      ? t(app.logo ? 'style.eclCaptionAutoLogo' : 'style.eclCaptionAuto', {
-          percent: ECL_PERCENT[app.ecl],
-        })
-      : t('style.eclCaptionFixed', { percent: ECL_PERCENT[app.ecl] }),
-  );
+  const caption = $derived.by(() => {
+    if (app.style.ecl !== 'auto')
+      return t('style.eclCaptionFixed', { percent: ECL_PERCENT[app.ecl] });
+    if (app.logo) return t('style.eclCaptionAutoLogo', { percent: ECL_PERCENT[app.baseEcl] });
+    // Before anything is entered, the placeholder code says nothing about the user's content.
+    if (app.isEmpty || app.ecl === app.baseEcl)
+      return t('style.eclCaptionAuto', { percent: ECL_PERCENT[app.baseEcl] });
+    return t('style.eclCaptionAutoRaised', {
+      percent: ECL_PERCENT[app.ecl],
+      base: ECL_PERCENT[app.baseEcl],
+    });
+  });
 </script>
 
 <section class="style card" aria-labelledby="style-heading">

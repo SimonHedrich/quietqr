@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import type { Hex } from '../../src/lib/color';
 import { analyze } from '../../src/lib/qr/analyze';
-import { encodeQr, type Ecl } from '../../src/lib/qr/encode';
+import { encodeQr, encodeRaised, type Ecl } from '../../src/lib/qr/encode';
+import { renderSvg } from '../../src/lib/qr/render';
 import { BG_PRESETS, FG_PRESETS, type Shape } from '../../src/lib/style';
-import { roundTrip, testLogo } from './helpers';
+import { decodeSvg, roundTrip, testLogo } from './helpers';
 
 const ECLS: Ecl[] = ['L', 'M', 'Q', 'H'];
 const SHORT = 'https://example.com/';
@@ -79,5 +80,14 @@ export function scanSuite(shape: Shape): void {
         const payload = 'x'.repeat(len);
         expect(await roundTrip(payload, 'H', { shape, logo: logos.noisy })).toBe(payload);
       });
+  });
+
+  test('Auto-raised codes scan', async () => {
+    for (let len = 5; len <= 600; len = Math.ceil(len * 1.6)) {
+      const payload = 'https://example.com/' + 'a'.repeat(len);
+      const qr = encodeRaised(payload, 'M');
+      const svg = renderSvg(qr, { shape, fg: '#1f2328', bg: '#ffffff', transparent: false });
+      expect(await decodeSvg(svg, (qr.size + 8) * 8), `${len} ${qr.ecl}`).toBe(payload);
+    }
   });
 }

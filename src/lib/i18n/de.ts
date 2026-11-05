@@ -127,6 +127,7 @@ export const de = {
   'style.ecl': 'Fehlerkorrektur',
   'style.ecl.auto': 'Auto',
   'style.eclCaptionAuto': 'Auto: {percent} %',
+  'style.eclCaptionAutoRaised': 'Auto: {percent} % (von {base} % erhöht, ohne größeren Code)',
   'style.eclCaptionAutoLogo': 'Auto: {percent} % (Logo)',
   'style.eclCaptionFixed': '{percent} % des Codes dürfen beschädigt sein, er bleibt lesbar.',
 } satisfies Messages;
