@@ -114,10 +114,35 @@ v4 would work, but for a single-screen app it adds tooling without much gain.
 | busybox httpd | ~1–2 MB | <1 MB | Too primitive (headers, compression) |
 | Caddy | ~40 MB | 10+ MB | Overkill unless it also does TLS |
 
-Multi-stage Dockerfile: a `node` build stage, then `dist/` copied into the static-web-server
-image. Run as non-root, works with a read-only root filesystem, security headers (CSP etc.) set by
-the server. Multi-arch (amd64 + arm64), published to `ghcr.io/simonhedrich/quietqr`.
-Target app bundle: ~30–60 KB gzipped.
+Multi-stage `Dockerfile`: a `node:26-alpine` build stage (runs on the build platform, so
+multi-arch builds don't emulate Node), then `dist/` copied into
+`joseluisq/static-web-server:2.44.1` (scratch-based: no shell, no package manager). Runs as
+`65534:65534` on port 8080 and works with `--read-only` and `--cap-drop ALL`. Config in
+`docker/sws.toml`: dynamic compression (brotli/gzip), no directory listing, `/health`.
+Multi-arch (amd64 + arm64), published to `ghcr.io/simonhedrich/quietqr`.
+
+Measured (v0.1.0, arm64): **image 3.6 MB** (server 3.5 MB + app 0.13 MB), **idle memory
+6.5 MiB** (`docker stats` after start; ~19 MiB right after serving a test run).
+
+**Headers** (`docker/sws.toml`):
+- `Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self';
+  img-src 'self' data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none';
+  frame-ancestors 'none'`. Svelte needs no `'unsafe-inline'`: its CSS is extracted to a file
+  and dynamic styles are set through the CSSOM. `data:` is for the logo inside the SVG,
+  `blob:` for loading SVG/logo files into a canvas. The e2e suite runs against the
+  container and fails on any console error, so CSP violations would show.
+- `Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`,
+  `Cross-Origin-Opener-Policy`/`-Resource-Policy: same-origin`, `Permissions-Policy` that
+  allows only geolocation for the app itself.
+- Caching: `assets/**` (hashed names) `public, max-age=31536000, immutable`; everything
+  else, including `index.html`, `no-cache`.
+
+**GitHub Pages** can't send headers. The build writes the same CSP (single source:
+`src/csp.ts`, a test keeps `sws.toml` in sync) as a `<meta http-equiv>` tag, plus
+`<meta name="referrer" content="no-referrer">`. Not enforceable there: `frame-ancestors`
+(ignored in meta, so the demo can be framed), `X-Content-Type-Options`, `Permissions-Policy`,
+COOP/CORP and our cache headers. The privacy guarantee (no requests to other origins) holds
+on Pages too. The meta tag is only added to builds; Vite's dev server needs inline styles.
 
 No runtime configuration through env vars for now: a static app would need an entrypoint that
 writes a `config.json`. Add it only if a real need shows up (e.g. default colors).

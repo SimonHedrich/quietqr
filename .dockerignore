@@ -1,0 +1,15 @@
+node_modules
+dist
+.git
+.github
+e2e
+tests
+test-results
+playwright-report
+coverage
+docs
+*.md
+*.tmp.mjs
+.DS_Store
+Dockerfile
+compose.yaml

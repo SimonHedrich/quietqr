@@ -12,6 +12,8 @@ prepareZXingModule({
   fireImmediately: true,
 });
 
+const ORIGIN = new URL(process.env.BASE_URL ?? 'http://localhost:4173').origin;
+
 /** Fails the test on console errors, page errors or any request to another origin. */
 function guard(page: Page) {
   const problems: string[] = [];
@@ -21,7 +23,7 @@ function guard(page: Page) {
   page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));
   page.on('request', (r) => {
     const url = new URL(r.url());
-    if (!['data:', 'blob:'].includes(url.protocol) && url.origin !== 'http://localhost:4173')
+    if (!['data:', 'blob:'].includes(url.protocol) && url.origin !== ORIGIN)
       problems.push(`external request: ${r.url()}`);
   });
   return () => expect(problems).toEqual([]);

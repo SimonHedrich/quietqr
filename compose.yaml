@@ -1,0 +1,10 @@
+# Example: docker compose up -d, then open http://localhost:8080
+services:
+  quietqr:
+    image: ghcr.io/simonhedrich/quietqr:latest
+    ports:
+      - "8080:8080"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped

@@ -12,6 +12,7 @@
     "noEmit": true
   },
   "include": [
+    "src/csp.ts",
     "vite.config.ts",
     "playwright.config.ts",
     "eslint.config.js",

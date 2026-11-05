@@ -1,0 +1,42 @@
+# static-web-server configuration for the quietqr image.
+# Headers: keep the CSP in sync with src/csp.ts (a test checks it).
+
+[general]
+host = "::"
+port = 8080
+root = "/public"
+log-level = "warn"
+compression = true
+compression-level = "default"
+# We set Cache-Control ourselves below.
+cache-control-headers = false
+security-headers = false
+directory-listing = false
+health = true
+ignore-hidden-files = true
+disable-symlinks = true
+
+[advanced]
+
+[[advanced.headers]]
+source = "**"
+[advanced.headers.headers]
+Content-Security-Policy = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+Referrer-Policy = "no-referrer"
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "DENY"
+Cross-Origin-Opener-Policy = "same-origin"
+Cross-Origin-Resource-Policy = "same-origin"
+Permissions-Policy = "geolocation=(self), camera=(), microphone=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), browsing-topics=()"
+Cache-Control = "no-cache"
+
+# Vite puts a content hash in every file name under assets/.
+[[advanced.headers]]
+source = "/assets/**"
+[advanced.headers.headers]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[advanced.headers]]
+source = "/favicon.svg"
+[advanced.headers.headers]
+Cache-Control = "public, max-age=86400"
