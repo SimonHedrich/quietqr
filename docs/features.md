@@ -4,7 +4,8 @@ What quietqr does and how it behaves. Why: [brief.md](brief.md). Tech: [decision
 
 ## Data templates
 
-All templates are shown as icon chips in this order of importance. As many as fit are visible;
+All templates are shown as icon chips in this order of importance (UI names: URL, WiFi,
+Text, Contact, Email, Phone, SMS, Location, Event). As many as fit are visible;
 the rest sit behind a "…" chip that opens a small menu. When a template is picked from that
 menu, the "…" chip takes its icon and name (the visible chips are not reshuffled). URL is
 selected on first load.
@@ -30,7 +31,8 @@ Behaviour:
 - Each template keeps its field values in memory while switching templates (session only,
   never persisted). Each form has a "Clear" button.
 - A capacity indicator near the preview shows how much of the code's capacity at the current
-  error-correction level is used (e.g. "312 / ~1,200 characters"), for every template.
+  error-correction level is used (e.g. "312 / ~2,331 characters"), for every template. It
+  counts UTF-8 bytes, so "ä" counts as two.
 - Before anything is entered, the preview shows a faded placeholder code (encoding the repo
   URL) with "Enter something to generate your code". Export is disabled until there is real
   content.
@@ -72,9 +74,12 @@ No PDF and no print button.
 ## State and privacy
 
 - localStorage keeps only the **style** (shape, colors, transparency, error-correction
-  choice), never the content.
-- The URL hash is not synced automatically; only "Copy link" writes it. Opening such a link
-  restores content and style.
+  choice) and the UI language/theme, never the content.
+- The URL hash is not synced automatically; only "Copy link" writes it
+  (`#v1=<base64url(JSON)>` with the template, its non-empty values and the non-default style
+  fields). Opening such a link restores content and style; an invalid or unknown-version
+  hash is ignored silently. The hash stays in the address bar until the first edit, then
+  it is removed, so stale content isn't shared again by accident.
 - The logo is never stored, neither in localStorage nor in the hash.
 
 ## Scannability warnings
@@ -93,8 +98,12 @@ The only hard error is data that exceeds the code's capacity; it replaces the pr
 - One screen, no routing.
 - Desktop: template chips and form on the left; style section below the form; a large sticky
   preview with the export buttons on the right.
-- Mobile: stacked, with a small sticky preview that stays visible while typing.
+- Mobile: stacked, with a small sticky preview that stays visible while typing. Order:
+  preview, chips, form, export, style.
 - Header: name on the left; language and theme toggles as small icon buttons on the right.
+  The language button is a native select (scales to more languages); the theme button
+  switches between light and dark and remembers the choice (until then the system decides).
+  Language and theme choice are stored in localStorage, like the style.
 - Footer, one line: "Runs entirely in your browser · No tracking · GitHub" plus the version.
 - Look: neutral greys, one accent color, the system font stack (no web fonts), generous
   whitespace, the preview as the dominant element on a subtle card. Dark mode follows the

@@ -152,7 +152,9 @@ writes a `config.json`. Add it only if a real need shows up (e.g. default colors
 - **Fixed quiet zone** of 4 modules, not configurable: it removes a common reason codes fail
   to scan.
 - **i18n from day one** (English + German for the first release). Translations are the easiest way for
-  outsiders to contribute, and retrofitting i18n is painful.
+  outsiders to contribute, and retrofitting i18n is painful. No library: `src/lib/i18n/en.ts`
+  is the source of truth, other languages must `satisfies Messages` (missing or extra keys
+  are type errors), and a test checks that placeholders match.
 - **Accessibility:** keyboard navigation, labels, good contrast in the UI itself.
 - **Few dependencies:** smaller supply-chain surface, which fits the privacy promise.
   Dependabot or Renovate.

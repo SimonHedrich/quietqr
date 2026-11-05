@@ -5,12 +5,23 @@ import globals from 'globals';
 import svelteConfig from './svelte.config.js';
 
 export default ts.config(
-  { ignores: ['dist/', 'node_modules/', 'playwright-report/', 'test-results/', 'coverage/'] },
+  {
+    ignores: [
+      'dist/',
+      'node_modules/',
+      'playwright-report/',
+      'test-results/',
+      'coverage/',
+      '*.tmp.mjs',
+    ],
+  },
   js.configs.recommended,
   ...ts.configs.strict,
   ...svelte.configs.recommended,
   {
-    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node, __APP_VERSION__: 'readonly' },
+    },
   },
   {
     files: ['**/*.svelte', '**/*.svelte.ts'],
