@@ -126,7 +126,17 @@ writes a `config.json`. Add it only if a real need shows up (e.g. default colors
 
 - **License: MIT** (already in the repo) for the widest use.
 - **Scannability is a feature:** warn about low contrast, inverted colors, a logo too large for
-  the error-correction level, or a very dense code.
+  the error-correction level, or a very dense code (`src/lib/qr/analyze.ts`). Thresholds:
+  - *Low contrast:* below 3:1 (WCAG for graphics). Clean renders decode down to ~1.3:1 in
+    the scan tests, but cameras face glare, print and poor light, so there's no evidence
+    to go lower.
+  - *Inverted:* the foreground has a higher luminance than the background.
+  - *Transparent background* is judged against white, where such codes usually end up.
+  - *Logo too large:* a logo at L or M. In the scan tests both failed for longer payloads;
+    Q and H always passed.
+  - *Very dense:* version above 20 (97 modules; under 0.5 mm per module at 5 cm print).
+    A full contact card with a logo (H) is about version 16 and doesn't warn.
+  - The curated presets all have at least 7:1 contrast and produce no warnings (tested).
 - **Automated scan tests:** Vitest unit tests for the data encoders (WiFi escaping, vCard,
   …), plus tests that render codes across the offered option range and decode them
   (`zxing-wasm` or `jsQR`), so every option combination is guaranteed to scan.

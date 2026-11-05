@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import type { Hex } from '../../src/lib/color';
-import type { Ecl } from '../../src/lib/qr/encode';
+import { analyze } from '../../src/lib/qr/analyze';
+import { encodeQr, type Ecl } from '../../src/lib/qr/encode';
 import { BG_PRESETS, FG_PRESETS, SHAPES } from '../../src/lib/style';
 import { roundTrip, testLogo } from './helpers';
 
@@ -30,17 +31,26 @@ describe('every shape × level × logo × colors × payload scans', () => {
             ['short', SHORT],
             ['long', LONG],
           ] as const) {
-            // A logo at L or M is outside what the app recommends (it warns, see analyze.ts).
-            const warned = logo !== undefined && (ecl === 'L' || ecl === 'M');
             const label = `${shape} ${ecl} logo=${logo ?? 'none'} ${fg}/${bg} ${name}`;
-            test.skipIf(warned)(label, async () => {
+            test(label, async () => {
+              const { warnings } = analyze({
+                fg,
+                bg,
+                transparent: false,
+                hasLogo: logo !== undefined,
+                version: encodeQr(payload, ecl).version,
+                ecl,
+              });
               const text = await roundTrip(payload, ecl, {
                 shape,
                 fg,
                 bg,
                 logo: logo && logos[logo],
               });
-              expect(text).toBe(payload);
+              // Either it scans, or the app warns about it (e.g. a logo at L or M).
+              if (text !== payload) expect(warnings).not.toEqual([]);
+              else if (logo === undefined || ecl === 'Q' || ecl === 'H')
+                expect(warnings).toEqual([]);
             });
           }
 });
