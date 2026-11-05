@@ -81,6 +81,25 @@ config with typescript-eslint and eslint-plugin-svelte, Prettier, Vitest.
 - Export: SVG directly; PNG by drawing the SVG to a canvas at the chosen size; copy to the
   clipboard.
 
+## Payload formats
+
+Researched from Apple's iOS QR tech talk, ZXing and AOSP sources and user reports (no
+first-hand device tests were available; worth checking on real phones before release):
+
+- **SMS: `SMSTO:<number>:<message>`.** iOS prefills the message only for `SMSTO:`; `sms:`
+  gets the number only. ZXing (Android) splits at the first colon, so colons in the
+  message are fine; nothing is percent-encoded.
+- **Calendar: bare `VEVENT`.** ZXing finds `BEGIN:VEVENT` anywhere and needs only `DTSTART`;
+  iOS accepts iCalendar events. `VCALENDAR`, `UID`, `DTSTAMP` and `PRODID` cost capacity and
+  nobody reads them. CRLF per RFC 5545, no line folding (readers don't need it, and it
+  costs bytes).
+- **vCard 3.0** with CRLF; `N` and `FN` always present (iOS shows an empty name without
+  `N`); UTF-8 without `CHARSET` (vCard 4.0 garbled umlauts on iOS).
+- **WiFi:** `T:WPA` for WPA/WPA2/WPA3 (the Wi-Fi Alliance spec allows nothing else for
+  password networks; iOS ignores `T:SAE`). No quoting of hex-looking SSIDs (iOS rejects
+  quoted values).
+- **Geo:** `geo:lat,lng` (iOS Camera opens Maps for it), 5 decimals.
+
 ## Styling: scoped CSS + custom properties
 
 Svelte scoped CSS with design tokens as CSS custom properties (also used for dark mode). Tailwind

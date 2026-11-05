@@ -12,17 +12,21 @@ selected on first load.
 | # | Template | Fields | Encoding |
 |---|---|---|---|
 | 1 | URL | one field; `https://` is added when no scheme is given | the URL |
-| 2 | WiFi | network name (SSID); password with show/hide; security **WPA/WPA2/WPA3 · WEP · None** (WPA preselected, password hidden for None); "hidden network" checkbox | `WIFI:` with `; , " \ :` escaped |
+| 2 | WiFi | network name (SSID); password with show/hide; security **WPA/WPA2/WPA3 · WEP · None** (WPA preselected, password hidden for None); "hidden network" checkbox | `WIFI:T:WPA;S:…;P:…;;` with `; , " \ :` escaped; `T:WPA` also for WPA3, `T:nopass` without `P` for None, `H:true` only when hidden |
 | 3 | Text | textarea | the text |
-| 4 | Contact | first name, last name, phone visible; under "More fields": organisation, job title, email, website, address (street, postal code, city, country), note. One of each, no photo | vCard 3.0 (no MeCard) |
-| 5 | Email | recipient, subject, body | `mailto:` |
-| 6 | Phone | number | `tel:` |
-| 7 | SMS | number, message | `SMSTO:` or `sms:`; check which scans best on iOS and Android before implementing |
-| 8 | Geo | latitude, longitude; "Use my location" (browser Geolocation API); pasting a Google Maps or OpenStreetMap link fills the coordinates. No map (it would need external tiles) | `geo:` |
-| 9 | Calendar | title, start, end, all-day toggle, location, description. No recurrence, no reminders | VEVENT; times entered in local time, stored as UTC |
+| 4 | Contact | first name, last name, phone visible; under "More fields": organisation, job title, email, website, address (street, postal code, city, country), note. One of each, no photo | vCard 3.0 (no MeCard), CRLF, `N` and `FN` always present |
+| 5 | Email | recipient, subject, body | `mailto:addr?subject=…&body=…`, percent-encoded (`%20`, `%0D%0A`) |
+| 6 | Phone | number | `tel:` with spaces and separators removed |
+| 7 | SMS | number, message | `SMSTO:<number>:<message>`, message unencoded (iOS prefills the message only for `SMSTO:`) |
+| 8 | Geo | latitude, longitude; "Use my location" (browser Geolocation API); pasting a Google Maps or OpenStreetMap link fills the coordinates. No map (it would need external tiles) | `geo:lat,lng`, at most 5 decimals (~1 m) |
+| 9 | Calendar | title, start, end, all-day toggle, location, description. No recurrence, no reminders | bare `VEVENT` (no `VCALENDAR` wrapper, no UID/DTSTAMP), CRLF; times entered in local time, stored as UTC (`…Z`); all-day as `VALUE=DATE` with exclusive end |
 
 Behaviour:
 
+- Validation messages appear inline and never block the code. An empty form shows none.
+- Geo: pasting a Google Maps link (`@lat,lng`, `q=`, `ll=`, `query=`, `!3d…!4d…`), an
+  OpenStreetMap link (`#map=z/lat/lng`, `mlat`/`mlon`) or plain coordinates into a coordinate
+  field fills both. Short links (`maps.app.goo.gl`) can't be resolved offline; a hint says so.
 - Each template keeps its field values in memory while switching templates (session only,
   never persisted). Each form has a "Clear" button.
 - A capacity indicator near the preview shows how much of the code's capacity at the current
