@@ -10,6 +10,9 @@ and the feature set ([features.md](features.md)) are decided.
 
 ## Next steps
 
+How to carry these out (order, architecture, quality gates, milestones):
+[implementation-guide.md](implementation-guide.md).
+
 1. **Scaffold:** Vite + Svelte 5 + TS, ESLint + Prettier, Vitest, `base: './'`, folder layout
    (`src/lib/qr/` encoder+renderer, `src/lib/templates/` data encoders, `src/components/`).
 2. **Core:** matrix encoder choice (`uqr` vs Nayuki), SVG renderer (3 shapes, logo
