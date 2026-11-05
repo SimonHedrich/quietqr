@@ -1,11 +1,11 @@
 # Features
 
-What quietqr does and how it behaves. Why: [brief.md](brief.md). Tech: [decisions.md](decisions.md).
+What quietqr does and how it behaves. Why: [brief.md](brief.md). How and why it's built this
+way, including the exact payload formats: [decisions.md](decisions.md).
 
 ## Data templates
 
-All templates are shown as icon chips in this order of importance (UI names: URL, WiFi,
-Text, Contact, Email, Phone, SMS, Location, Event). As many as fit are visible;
+All templates are shown as icon chips in this order of importance. As many as fit are visible;
 the rest sit behind a "…" chip that opens a small menu. When a template is picked from that
 menu, the "…" chip takes its icon and name (the visible chips are not reshuffled). URL is
 selected on first load.
@@ -19,13 +19,13 @@ selected on first load.
 | 5 | Email | recipient, subject, body | `mailto:addr?subject=…&body=…`, percent-encoded (`%20`, `%0D%0A`) |
 | 6 | Phone | number | `tel:` with spaces and separators removed |
 | 7 | SMS | number, message | `SMSTO:<number>:<message>`, message unencoded (iOS prefills the message only for `SMSTO:`) |
-| 8 | Geo | latitude, longitude; "Use my location" (browser Geolocation API); pasting a Google Maps or OpenStreetMap link fills the coordinates. No map (it would need external tiles) | `geo:lat,lng`, at most 5 decimals (~1 m) |
-| 9 | Calendar | title, start, end, all-day toggle, location, description. No recurrence, no reminders | bare `VEVENT` (no `VCALENDAR` wrapper, no UID/DTSTAMP), CRLF; times entered in local time, stored as UTC (`…Z`); all-day as `VALUE=DATE` with exclusive end |
+| 8 | Location | latitude, longitude; "Use my location" (browser Geolocation API); pasting a Google Maps or OpenStreetMap link fills the coordinates. No map (it would need external tiles) | `geo:lat,lng`, at most 5 decimals (~1 m) |
+| 9 | Event | title, start, end, all-day toggle, location, description. No recurrence, no reminders | bare `VEVENT` (no `VCALENDAR` wrapper, no UID/DTSTAMP), CRLF; times entered in local time, stored as UTC (`…Z`); all-day as `VALUE=DATE` with exclusive end |
 
 Behaviour:
 
 - Validation messages appear inline and never block the code. An empty form shows none.
-- Geo: pasting a Google Maps link (`@lat,lng`, `q=`, `ll=`, `query=`, `!3d…!4d…`), an
+- Location: pasting a Google Maps link (`@lat,lng`, `q=`, `ll=`, `query=`, `!3d…!4d…`), an
   OpenStreetMap link (`#map=z/lat/lng`, `mlat`/`mlon`) or plain coordinates into a coordinate
   field fills both. Short links (`maps.app.goo.gl`) can't be resolved offline; a hint says so.
 - Each template keeps its field values in memory while switching templates (session only,
@@ -117,10 +117,10 @@ The only hard error is data that exceeds the code's capacity; it replaces the pr
 
 ## Languages
 
-English and German for the first release. The language is detected from the browser and can
-be switched in the header.
+English and German. The language is detected from the browser and can be switched in the
+header. Adding a language takes one file (see [CONTRIBUTING.md](../CONTRIBUTING.md)).
 
 ## Out of scope
 
-- CSV batch generation and QR scanning/decoding: separate products, ruled out.
-- PWA/offline: a possible follow-up, not part of the first release.
+- CSV batch generation and QR scanning/decoding: separate products.
+- Offline/PWA: an idea on the [roadmap](roadmap.md), not built yet.

@@ -9,7 +9,6 @@ playwright-report
 coverage
 docs
 *.md
-*.tmp.mjs
 .DS_Store
 Dockerfile
 compose.yaml

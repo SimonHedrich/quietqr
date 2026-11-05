@@ -84,8 +84,10 @@ npm run format     # Prettier --write
 docker build -t quietqr .
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how the code is organised, how to add a template
-or a language, and [docs/](docs/) for the goals, decisions and feature set.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how the code is organised and how to add a
+template or a language. The [docs](docs/) explain the [goals](docs/brief.md), the
+[features](docs/features.md), the [technical decisions](docs/decisions.md) and the
+[roadmap](docs/roadmap.md), including where help is welcome (device testing, translations).
 
 ## Credits
 

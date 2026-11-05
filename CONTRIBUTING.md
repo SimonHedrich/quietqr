@@ -76,5 +76,5 @@ detected automatically and the header has a language switch.
 
 `docs/` describes the current state: [brief](docs/brief.md) (why),
 [decisions](docs/decisions.md) (tech choices and reasons), [features](docs/features.md)
-(what the app does) and [plan](docs/plan.md) (what's next). If your change affects one of
+(what the app does) and [roadmap](docs/roadmap.md) (what's next). If your change affects one of
 them, update it in the same pull request.

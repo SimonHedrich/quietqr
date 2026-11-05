@@ -6,14 +6,7 @@ import svelteConfig from './svelte.config.js';
 
 export default ts.config(
   {
-    ignores: [
-      'dist/',
-      'node_modules/',
-      'playwright-report/',
-      'test-results/',
-      'coverage/',
-      '*.tmp.mjs',
-    ],
+    ignores: ['dist/', 'node_modules/', 'playwright-report/', 'test-results/', 'coverage/'],
   },
   js.configs.recommended,
   ...ts.configs.strict,
