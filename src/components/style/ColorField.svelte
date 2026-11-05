@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { parseHex, type Hex } from '../../lib/color';
   import { t } from '../../lib/state/prefs.svelte';
 
@@ -20,10 +21,13 @@
   let text = $state('');
   let invalid = $state(false);
 
-  // Mirror the value into the hex field whenever it changes from outside.
+  // Mirror the value into the hex field when it changes from outside (picker, preset, link),
+  // but not while the user is typing a form of it (e.g. `#1e3` before `#1e3a8a`).
   $effect.pre(() => {
-    text = value;
-    invalid = false;
+    if (untrack(() => parseHex(text)) !== value) {
+      text = value;
+      invalid = false;
+    }
   });
 
   function onTextInput() {

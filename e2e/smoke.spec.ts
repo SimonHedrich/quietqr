@@ -220,6 +220,21 @@ test('warnings and capacity error', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Download SVG' })).toBeDisabled();
 });
 
+test('typing a hex color character by character', async ({ page }) => {
+  await page.goto('/');
+  const hex = page.getByLabel('Foreground hex value');
+  await hex.fill('');
+  await hex.pressSequentially('#1e3a8a');
+  await expect(hex).toHaveValue('#1e3a8a');
+  await expect(page.getByRole('button', { name: 'Use #1e3a8a' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await hex.fill('#abc');
+  await hex.blur();
+  await expect(hex).toHaveValue('#aabbcc');
+});
+
 test('language switch updates the UI and <html lang>', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Language').selectOption('de');

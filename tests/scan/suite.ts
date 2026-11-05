@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import type { Hex } from '../../src/lib/color';
 import { analyze } from '../../src/lib/qr/analyze';
 import { encodeQr, type Ecl } from '../../src/lib/qr/encode';
-import { BG_PRESETS, FG_PRESETS, SHAPES } from '../../src/lib/style';
+import { BG_PRESETS, FG_PRESETS, type Shape } from '../../src/lib/style';
 import { roundTrip, testLogo } from './helpers';
 
 const ECLS: Ecl[] = ['L', 'M', 'Q', 'H'];
@@ -22,8 +22,12 @@ const COLOR_PAIRS: [Hex, Hex][] = [
 
 const logos = { solid: testLogo('solid'), noisy: testLogo('noisy') };
 
-describe('every shape × level × logo × colors × payload scans', () => {
-  for (const shape of SHAPES)
+/**
+ * Renders codes across the offered option range for one shape and decodes them with ZXing.
+ * One test file per shape (square/rounded/dots.test.ts), so Vitest runs them in parallel.
+ */
+export function scanSuite(shape: Shape): void {
+  describe('every level × logo × colors × payload scans', () => {
     for (const ecl of ECLS)
       for (const logo of [undefined, 'solid', 'noisy'] as const)
         for (const [fg, bg] of COLOR_PAIRS)
@@ -53,29 +57,27 @@ describe('every shape × level × logo × colors × payload scans', () => {
                 expect(warnings).toEqual([]);
             });
           }
-});
+  });
 
-describe('every preset combination scans', () => {
-  for (const fg of FG_PRESETS)
-    for (const bg of BG_PRESETS)
-      for (const shape of SHAPES)
+  describe('every preset combination scans', () => {
+    for (const fg of FG_PRESETS)
+      for (const bg of BG_PRESETS)
         test(`${shape} ${fg}/${bg}`, async () => {
           expect(await roundTrip(SHORT, 'M', { shape, fg, bg })).toBe(SHORT);
         });
-});
+  });
 
-test('transparent background scans on white', async () => {
-  for (const shape of SHAPES)
+  test('transparent background scans on white', async () => {
     expect(await roundTrip(LONG, 'M', { shape, transparent: true })).toBe(LONG);
-});
+  });
 
-describe('logo works across many versions at H', () => {
-  const lengths: number[] = [];
-  for (let len = 5; len <= 1200; len = Math.ceil(len * 1.35)) lengths.push(len);
-  for (const len of lengths)
-    for (const shape of SHAPES)
+  describe('logo works across many versions at H', () => {
+    const lengths: number[] = [];
+    for (let len = 5; len <= 1200; len = Math.ceil(len * 1.35)) lengths.push(len);
+    for (const len of lengths)
       test(`${shape} ${len} bytes`, async () => {
         const payload = 'x'.repeat(len);
         expect(await roundTrip(payload, 'H', { shape, logo: logos.noisy })).toBe(payload);
       });
-});
+  });
+}
