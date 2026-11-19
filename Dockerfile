@@ -9,7 +9,7 @@ COPY . .
 RUN npm run build
 
 # Runtime: static-web-server on scratch, a few MB.
-FROM joseluisq/static-web-server:2.44.1
+FROM joseluisq/static-web-server:2.44.3
 COPY --from=build /app/dist /public
 COPY docker/sws.toml /etc/sws.toml
 ENV SERVER_CONFIG_FILE=/etc/sws.toml
